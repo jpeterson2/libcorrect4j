@@ -8,12 +8,14 @@ package libcorrect.convolutional;
 
 import java.util.Arrays;
 
+import org.checkerframework.checker.signedness.qual.Unsigned;
+
 public class ErrorBuffer {
     private int index;
-    private final short[][] errors_U;
-    private int numStates_U;
+    private final @Unsigned short[][] errors_U;
+    private @Unsigned int numStates_U;
 
-    public ErrorBuffer(int numStates_U) {
+    public ErrorBuffer(@Unsigned int numStates_U) {
         // how large are the error buffers?
         this.numStates_U = numStates_U;
 
@@ -21,7 +23,7 @@ public class ErrorBuffer {
         // (double buffer)
         // the error metric is the aggregated number of bit errors found
         //   at a given path which terminates at a particular shift register state
-        errors_U = new short[2][];
+        errors_U = new @Unsigned short[2][];
         this.errors_U[0] = new short[numStates_U];
         this.errors_U[1] = new short[numStates_U];
 
@@ -37,19 +39,19 @@ public class ErrorBuffer {
     public void swap() {
         index = (index+1)%2;
     }
-    public short getReadError(int i) {
+    public @Unsigned short getReadError(int i) {
         return errors_U[index][i];
     }
-    public void setReadError(int i, short v) {
+    public void setReadError(int i, @Unsigned short v) {
         errors_U[index][i] = v;
     }
-    public short getWriteError(int i) {
+    public @Unsigned short getWriteError(int i) {
         return errors_U[(index+1)%2][i];
     }
-    public void setWriteError(int i, short v) {
+    public void setWriteError(int i, @Unsigned short v) {
         errors_U[(index+1)%2][i] = v;
     }
-    public short[] getWriteErrors() {
+    public @Unsigned short[] getWriteErrors() {
         return errors_U[(index+1)%2];
     }
 

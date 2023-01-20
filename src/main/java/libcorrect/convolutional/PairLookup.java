@@ -5,13 +5,15 @@
  */
 package libcorrect.convolutional;
 
+import org.checkerframework.checker.signedness.qual.Unsigned;
+
 public class PairLookup {
-    private final int[] keys_U;
-    private final int[] outputs_U;
-    private final int outputMask_U;
-    private final int outputWidth_U;
-    private final int outputsLen_U;
-    private final int[] distances_U;
+    private final @Unsigned int[] keys_U;
+    private final @Unsigned int[] outputs_U;
+    private final @Unsigned int outputMask_U;
+    private final @Unsigned int outputWidth_U;
+    private final @Unsigned int outputsLen_U;
+    private final @Unsigned int[] distances_U;
 
 /*
  *  C popcount clone taken from the helpful http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
@@ -25,10 +27,10 @@ public class PairLookup {
     }
  */
 
-    public  PairLookup (int rate_U, int order_U, int[] table_U) {
+    public  PairLookup (@Unsigned int rate_U, @Unsigned int order_U, @Unsigned int[] table_U) {
         this.keys_U = new int[1 << (order_U - 1)];
         this.outputs_U = new int[1 << (rate_U * 2)];
-        int[] invOutputs_U = new int[1 << (rate_U * 2)];
+        @Unsigned int[] invOutputs_U = new @Unsigned int[1 << (rate_U * 2)];
         int outputCounter_U = 1;
 
         // for every (even-numbered) shift register state, find the concatenated output of the state
@@ -55,7 +57,7 @@ public class PairLookup {
         this.outputWidth_U = rate_U;
         this.distances_U = new int[this.outputsLen_U];
     }
-    public void fillDistance(short[] distances_U) {
+    public void fillDistance(@Unsigned short[] distances_U) {
         for(int i = 1; Integer.compareUnsigned(i, this.outputsLen_U) < 0; i ++) {
             int concatOut_U = this.outputs_U[i];
             int i0_U = concatOut_U & this.outputMask_U;
@@ -66,10 +68,10 @@ public class PairLookup {
                                   Short.toUnsignedInt(distances_U[i0_U]);
         }
     }
-    public int getKey(int i) {
+    public @Unsigned int getKey(@Unsigned int i) {
         return keys_U[i];
     }
-    public int getDistance(int i) {
+    public @Unsigned int getDistance(@Unsigned int i) {
         return distances_U[i];
     }
 

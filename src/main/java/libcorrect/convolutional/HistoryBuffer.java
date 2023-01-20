@@ -5,51 +5,53 @@
  */
 package libcorrect.convolutional;
 
+import org.checkerframework.checker.signedness.qual.Unsigned;
+
 // generates output bits after accumulating sufficient history
 public class HistoryBuffer {
     // history entries must be at least this old to be decoded
-    private final int minTracebackLength_U;
+    private final @Unsigned int minTracebackLength_U;
     // we'll decode entries in bursts. this tells us the length of the burst
-    private final int tracebackGroupLength_U;
+    private final @Unsigned int tracebackGroupLength_U;
     // we will store a total of cap entries. equal to min_traceback_length +
     // traceback_group_length
-    private final int cap_U;
+    private final @Unsigned int cap_U;
     // how many states in the shift register? this is one of the dimensions of
     // history table
-    private final int numStates_U;
+    private final @Unsigned int numStates_U;
     // what's the high order bit of the shift register?
-    private final int highbit_U;
+    private final @Unsigned int highbit_U;
     // history is a compact history representation for every shift register
     // state,
     //  one bit per time slice
-    private final byte[][] history_U;
+    private final @Unsigned byte[][] history_U;
     // which slice are we writing next?
-    private int index_U;
+    private @Unsigned int index_U;
     //how many valid entries are there?
-    private int len_U;
+    private @Unsigned int len_U;
     // temporary store of fetched bits
-    private final byte[] fetched_U;
+    private final @Unsigned byte[] fetched_U;
     // how often should we renormalize?
-    private final int renormalizeInterval_U;
-    private int renormalizeCounter_U;
+    private final @Unsigned int renormalizeInterval_U;
+    private @Unsigned int renormalizeCounter_U;
 
-    public byte getHistory(int i, int j) {
+    public @Unsigned byte getHistory(int i, int j) {
         return history_U[i][j];
     }
 
-    public HistoryBuffer(int minTracebackLength_U,
-                         int tracebackGroupLength_U,
-                         int renormalizeInterval_U,
-                         int numStates_U,
-                         int highbit_U) {
+    public HistoryBuffer(@Unsigned int minTracebackLength_U,
+                         @Unsigned int tracebackGroupLength_U,
+                         @Unsigned int renormalizeInterval_U,
+                         @Unsigned int numStates_U,
+                         @Unsigned int highbit_U) {
         this.minTracebackLength_U = minTracebackLength_U;
         this.tracebackGroupLength_U = tracebackGroupLength_U;
         this.cap_U = minTracebackLength_U + tracebackGroupLength_U;
         this.numStates_U = numStates_U;
         this.highbit_U = highbit_U;
 
-        this.history_U = new byte[this.cap_U][this.numStates_U];
-        this.fetched_U = new byte[this.cap_U];
+        this.history_U = new @Unsigned byte[this.cap_U][this.numStates_U];
+        this.fetched_U = new @Unsigned byte[this.cap_U];
 
         this.index_U = 0;
         this.len_U = 0;
@@ -63,16 +65,16 @@ public class HistoryBuffer {
         index_U = 0;
     }
 
-    public byte[] getSlice() {
+    public @Unsigned byte[] getSlice() {
         return history_U[index_U];
     }
 
-    public int search(short[] distances_U, int searchEvery_U) {
-        int bestpath_U = 0;
-        int leasterror_U = Integer.MAX_VALUE;
+    public @Unsigned int search(@Unsigned short[] distances_U, @Unsigned int searchEvery_U) {
+        @Unsigned int bestpath_U = 0;
+        int leasterror_U = Integer.MAX_VALUE; // maybe a bug cuz it's not the max unsigned value
         // search for a state with the least error
-        for(int state_U = 0; Integer.compareUnsigned(state_U, numStates_U) < 0; state_U += searchEvery_U) {
-            if(Short.toUnsignedInt(distances_U[state_U]) < leasterror_U) {
+        for(@Unsigned int state_U = 0; Integer.compareUnsigned(state_U, numStates_U) < 0; state_U += searchEvery_U) {
+            if(Short.toUnsignedInt(distances_U[state_U]) < leasterror_U) { //TODO: change to unsigned comparison?
                 leasterror_U = distances_U[state_U];
                 bestpath_U = state_U;
             }
@@ -80,15 +82,15 @@ public class HistoryBuffer {
         return bestpath_U;
     }
 
-    public void renormalize(short[] distances_U, int minRegister_U) {
+    public void renormalize(@Unsigned short[] distances_U, @Unsigned int minRegister_U) {
         short minDistance_U = distances_U[minRegister_U];
         for(int i = 0; Integer.compareUnsigned(i, numStates_U) < 0; i++) {
             distances_U[i] = (short)(Short.toUnsignedInt(distances_U[i]) - Short.toUnsignedInt(minDistance_U));
         }
     }
 
-    public void traceback(int bestpath_U,
-                          int minTracebackLength_U,
+    public void traceback(@Unsigned int bestpath_U,
+                          @Unsigned int minTracebackLength_U,
                           BitWriter output) {
         int fetchedIndex_U = 0;
         int highbit_U = this.highbit_U;
@@ -138,7 +140,7 @@ public class HistoryBuffer {
         output.writeBitlistReversed(this.fetched_U, fetchedIndex_U);
         this.len_U -= fetchedIndex_U;
     }
-    public void processSkip(short[] distances_U, BitWriter output, int skip_U) {
+    public void processSkip(@Unsigned short[] distances_U, BitWriter output, @Unsigned int skip_U) {
         this.index_U++;
         if(this.index_U == this.cap_U) {
             this.index_U = 0;
@@ -170,7 +172,7 @@ public class HistoryBuffer {
         }
     }
 
-    public void process(short[] distances_U, BitWriter output) {
+    public void process(@Unsigned short[] distances_U, BitWriter output) {
         processSkip(distances_U, output, 1);
     }
 

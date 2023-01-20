@@ -12,6 +12,8 @@ package libcorrect.convolutional;
 
 import java.util.Arrays;
 
+import org.checkerframework.checker.signedness.qual.Unsigned;
+
 import static libcorrect.convolutional.Metric.distance;
 
 public class Convolutional {
@@ -36,15 +38,15 @@ public class Convolutional {
     private final static short DISTANCE_MAX = (short) UINT16_MAX;
 
 
-    private final int[] table_U;                /* size 2**order */
-    private final int rate_U;                   /* e.g. 2, 3...  */
-    private final int order_U;                  /* e.g. 7, 9...	 */
-    private final int numstates_U;              /* 2**order 	 */
+    private final @Unsigned int[] table_U;                /* size 2**order */
+    private final @Unsigned int rate_U;                   /* e.g. 2, 3...  */
+    private final @Unsigned int order_U;                  /* e.g. 7, 9...	 */
+    private final @Unsigned int numstates_U;              /* 2**order 	 */
     private final BitWriter bitWriter;
     private final BitReader bitReader;
 
     private boolean hasInitDecode;
-    private short[] distances_U;
+    private @Unsigned short[] distances_U;
     private PairLookup pairLookup;
     private int softMeasurement;
     private HistoryBuffer historyBuffer;
@@ -63,7 +65,7 @@ public class Convolutional {
      * @param p    polynomials
      * @throws IllegalArgumentException if requested encoder/decoder cannot be created
      */
-    public Convolutional(int r, int o, short[] p) throws IllegalArgumentException {
+    public Convolutional(@Unsigned int r, @Unsigned int o, @Unsigned short[] p) throws IllegalArgumentException {
         if (Integer.compareUnsigned(o, Integer.SIZE) > 0) {
             // XXX turn this into an error code
             // printf("order must be smaller than 8 * sizeof(shift_register_t)\n");
@@ -78,7 +80,7 @@ public class Convolutional {
         rate_U = r;
         numstates_U = (1 << o);
 
-        table_U = new int[1 << o];
+        table_U = new @Unsigned int[1 << o];
         fillTable(rate_U, order_U, p);
 
         bitWriter = new BitWriter(null, 0);
@@ -97,7 +99,7 @@ public class Convolutional {
      * @param msgLen        the message length
      * @return              the number of *bits* in *bytes*
      */
-    public long encodeLen(long msgLen) {
+    public @Unsigned long encodeLen(@Unsigned long msgLen) {
         long msgbits = 8 * msgLen;
         long encodedbits = rate_U * (msgbits + order_U + 1);
         return encodedbits;
@@ -110,7 +112,7 @@ public class Convolutional {
      */
 
     // assume that encoded length is long enough?
-    public byte[] encode(byte[] msg) {
+    public @Unsigned byte[] encode(@Unsigned byte[] msg) {
         int msgLen = msg.length;
 
         // convolutional code convolves filter coefficients, given by
@@ -131,7 +133,7 @@ public class Convolutional {
         int encodedLen = (int) (Long.remainderUnsigned(encodedLenBits, 8) != 0 ?
                         Long.divideUnsigned(encodedLenBits, 8) + 1 :
                         Long.divideUnsigned(encodedLenBits, 8));
-        byte[] encoded = new byte[encodedLen];
+        @Unsigned byte[] encoded = new @Unsigned byte[encodedLen];
         bitWriter.reconfigure(encoded, encodedLen);
         bitReader.reconfigure(msg, msgLen);
 
@@ -177,7 +179,7 @@ public class Convolutional {
      * @throws IllegalArgumentException
      */
 
-    public byte[] decodeSoft(byte[] encoded, long numEncodedBits) throws IllegalArgumentException {
+    public @Unsigned byte[] decodeSoft(@Unsigned byte[] encoded, @Unsigned long numEncodedBits) throws IllegalArgumentException {
         if (Long.remainderUnsigned(numEncodedBits, this.rate_U) != 0) {
             // XXX turn this into an error code
             // printf("encoded length of message must be a multiple of rate\n");
@@ -198,7 +200,7 @@ public class Convolutional {
      * @return  decoded message
      * @throws IllegalArgumentException
      */
-    public byte[] decode(byte[] encoded, long numEncodedBits) throws IllegalArgumentException {
+    public @Unsigned byte[] decode(@Unsigned byte[] encoded, @Unsigned long numEncodedBits) throws IllegalArgumentException {
         if (Long.remainderUnsigned(numEncodedBits, this.rate_U) != 0) {
             // XXX turn this into an error code
             // printf("encoded length of message must be a multiple of rate\n");
@@ -213,7 +215,7 @@ public class Convolutional {
     }
 
 
-    public void decodePrintIter(int iter, int winnerIndex) {
+    public void decodePrintIter(@Unsigned int iter, @Unsigned int winnerIndex) {
         if (Integer.compareUnsigned(iter, 2_220) < 0) {
             return;
         }
@@ -234,7 +236,7 @@ public class Convolutional {
         System.out.println();
     }
 
-    private byte[] _decode(long numEncodedBits_U, long numEncodedBytes_U, byte[] softEncoded_U) {
+    private @Unsigned byte[] _decode(@Unsigned long numEncodedBits_U, @Unsigned long numEncodedBytes_U, @Unsigned byte[] softEncoded_U) {
         if (!hasInitDecode) {
             long maxErrorPerInput_U = rate_U * Byte.toUnsignedLong(SOFT_MAX);
             int renormalizeInterval_U = (int) Long.divideUnsigned(Short.toUnsignedLong(DISTANCE_MAX), maxErrorPerInput_U);
@@ -243,7 +245,7 @@ public class Convolutional {
 
         int sets_U = (int) Long.divideUnsigned(numEncodedBits_U, rate_U);
         // XXX fix this vvvvvv
-        byte[] msg = new byte[(int) numEncodedBytes_U];
+        @Unsigned byte[] msg = new @Unsigned byte[(int) numEncodedBytes_U];
         bitWriter.reconfigure(msg, numEncodedBytes_U);
         errorBuffer.reset();
         historyBuffer.reset();
@@ -258,7 +260,7 @@ public class Convolutional {
         return Arrays.copyOf(msg, bitWriter.length());
     }
 
-    private void decodeInit(int minTraceback_U, int tracebackLength_U, int renormalizeInterval_U) {
+    private void decodeInit(@Unsigned int minTraceback_U, @Unsigned int tracebackLength_U, @Unsigned int renormalizeInterval_U) {
         hasInitDecode = true;
         distances_U = new short[1 << rate_U];
         pairLookup = new PairLookup(rate_U, order_U, table_U);
@@ -266,11 +268,11 @@ public class Convolutional {
 
         // we limit history to go back as far as 5 * the order of our polynomial
         historyBuffer = new HistoryBuffer(minTraceback_U, tracebackLength_U, renormalizeInterval_U,
-                numstates_U / 2, 1 << (order_U - 1));
+                numstates_U / 2, 1 << (order_U - 1)); // TODO: unsigned division?
         errorBuffer = new ErrorBuffer(numstates_U);
     }
 
-    private void decodeWarmup(int sets_U, byte[] soft_U) {
+    private void decodeWarmup(@Unsigned int sets_U, @Unsigned byte[] soft_U) {
         // first phase: load shiftregister up from 0 (order goes from 1 to conv->order)
         // we are building up error metrics for the first order bits
         for (int i = 0; Long.compareUnsigned(Integer.toUnsignedLong(i), this.order_U - 1) < 0 && Integer.compareUnsigned(i, sets_U) < 0; i++) {
@@ -300,7 +302,7 @@ public class Convolutional {
         }
     }
 
-    private void decodeInner(int sets_U, byte[] soft_U) {
+    private void decodeInner(@Unsigned int sets_U, @Unsigned byte[] soft_U) {
         int highbit_U = 1 << order_U - 1;
         for (int i = order_U - 1; Long.compareUnsigned(Integer.toUnsignedLong(i), Integer.toUnsignedLong(sets_U) - order_U + 1) < 0; i++) {
             // lasterrors are the aggregate bit errors for the states of shiftregister for the previous
@@ -328,7 +330,7 @@ public class Convolutional {
             int numIter_U = highbit_U << 1;
             // aggregate bit errors for this time slice
 
-            byte[] history_U = historyBuffer.getSlice();
+            @Unsigned byte[] history_U = historyBuffer.getSlice();
             // walk through all states, ignoring oldest bit
             // we will track a best register state (path) and the number of bit errors at that path at
             // this time slice
@@ -407,7 +409,7 @@ public class Convolutional {
         }
     }
 
-    private void decodeTail(int sets_U, byte[] soft_U) {
+    private void decodeTail(@Unsigned int sets_U, @Unsigned byte[] soft_U) {
         // flush state registers
         // now we only shift in 0s, skipping 1-successors
         int highbit_U = 1 << order_U - 1;
@@ -415,7 +417,7 @@ public class Convolutional {
         for (int i = (int) (Integer.toUnsignedLong(sets_U) - order_U + 1); Integer.compareUnsigned(i, sets_U) < 0; i++) {
             // lasterrors are the aggregate bit errors for the states of shiftregister for the previous
             // time slice
-            byte[] history_U = historyBuffer.getSlice();
+            @Unsigned byte[] history_U = historyBuffer.getSlice();
             // calculate the distance from all output states to our sliced bits
             if (soft_U != null) {
                 if (softMeasurement == CORRECT_SOFT_LINEAR) {
@@ -472,7 +474,7 @@ public class Convolutional {
 
     }
 
-    public void fillTable(int rate_U, int order_U, short[] poly_U) {
+    public void fillTable(@Unsigned int rate_U, @Unsigned int order_U, @Unsigned short[] poly_U) {
         for(int i = 0; Integer.compareUnsigned(i, 1 << order_U) < 0; i++) {
             int out_U = 0;
             int mask_U = 1;

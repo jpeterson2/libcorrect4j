@@ -92,11 +92,11 @@ public class Polynomial implements Cloneable {
         return coeff;
     }
 
-    public byte getCoeff(int i) {
+    public byte getCoeff(@Unsigned int i) {
         return coeff[i];
     }
 
-    public void setCoeff(int i, byte v) {
+    public void setCoeff(@Unsigned int i, byte v) {
         coeff[i] = v;
     }
 

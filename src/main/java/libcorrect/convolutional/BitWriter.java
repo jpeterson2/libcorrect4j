@@ -6,20 +6,22 @@
 
 package libcorrect.convolutional;
 
-public class BitWriter {
-    private byte currentByte_U;
-    private int currentByteLen_U;
-    private byte[] bytes_U;
-    private int byteIndex_U;
-    private long len_U;
+import org.checkerframework.checker.signedness.qual.Unsigned;
 
-    public BitWriter(byte[] bytes_U, long len_U) {
+public class BitWriter {
+    private @Unsigned byte currentByte_U;
+    private @Unsigned int currentByteLen_U;
+    private @Unsigned byte[] bytes_U;
+    private @Unsigned int byteIndex_U;
+    private @Unsigned long len_U;
+
+    public BitWriter(@Unsigned byte[] bytes_U, @Unsigned long len_U) {
         if (bytes_U != null) {
             reconfigure(bytes_U, len_U);
         }
     }
 
-    public void reconfigure(byte[] bytes_U, long len_U) {
+    public void reconfigure(@Unsigned byte[] bytes_U, @Unsigned long len_U) {
         this.bytes_U = bytes_U;
         this.len_U = len_U;
 
@@ -28,14 +30,14 @@ public class BitWriter {
         byteIndex_U = 0;
     }
 
-    public void write(byte val_U, int n_U) {
+    public void write(@Unsigned byte val_U, @Unsigned int n_U) {
         for (long j = 0; Long.compareUnsigned(j, Integer.toUnsignedLong(n_U)) < 0; j++) {
             write1(val_U);
             val_U = (byte) (Byte.toUnsignedInt(val_U) >> 1);
         }
     }
 
-    public void write1(byte val_U) {
+    public void write1(@Unsigned byte val_U) {
         currentByte_U = (byte) (Byte.toUnsignedInt((byte) (Byte.toUnsignedInt(currentByte_U) | Byte.toUnsignedInt(val_U) & 1)));
         if (++currentByteLen_U == 8) {
             // 8 bits in a byte -- move to the next byte
@@ -47,7 +49,7 @@ public class BitWriter {
         }
     }
 
-    public void writeBitlist(byte[] l_U, long len_U) {
+    public void writeBitlist(@Unsigned byte[] l_U, @Unsigned long len_U) {
         int lIndex = 0;
         // first close the current byte
         // we might have been given too few elements to do that. be careful.
@@ -65,7 +67,7 @@ public class BitWriter {
         lIndex += (int) closeLen_U;
         len_U -= closeLen_U;
 
-        byte[] bytes_U = this.bytes_U;
+        @Unsigned byte[] bytes_U = this.bytes_U;
         int byteIndex_U = this.byteIndex_U;
 
         if (Integer.toUnsignedLong(this.currentByteLen_U) + closeLen_U == 8) {
@@ -106,11 +108,11 @@ public class BitWriter {
         this.currentByteLen_U = (int) len_U;
     }
 
-    public void writeBitlistReversed(byte[] l_U, long len_U) {
+    public void writeBitlistReversed(@Unsigned byte[] l_U, @Unsigned long len_U) {
         int lIndex = 0;
         lIndex += (int) (len_U - 1);
 
-        byte[] bytes_U = this.bytes_U;
+        @Unsigned byte[] bytes_U = this.bytes_U;
         int byteIndex_U = this.byteIndex_U;
         short b_U;
 
@@ -177,7 +179,7 @@ public class BitWriter {
         }
     }
 
-    public int length() {
+    public @Unsigned int length() {
         return byteIndex_U;
     }
 }

@@ -6,15 +6,17 @@
 
 package libcorrect.reed_solomon;
 
+import org.checkerframework.checker.signedness.qual.Unsigned;
+
 public class Field {
     private byte[] expTable;
     private byte[] logTable;
 
-    public byte exp(int i) {
+    public byte exp(@Unsigned int i) {
         return expTable[i];
     }
 
-    public byte log(int i) {
+    public byte log(@Unsigned int i) {
         return logTable[i];
     }
 
@@ -66,7 +68,7 @@ public class Field {
         return (byte) (Byte.toUnsignedInt(l) ^ Byte.toUnsignedInt(r));
     }
 
-    public byte fieldSum(byte elem_U, int n_U) {
+    public byte fieldSum(byte elem_U, @Unsigned int n_U) {
         // we'll do a closed-form expression of the sum, although we could also
         //   choose to call field_add n times
 
@@ -149,13 +151,13 @@ public class Field {
         return (byte) res;
     }
 
-    public byte fieldPow(byte elem, int pow) {
+    public byte fieldPow(byte elem, @Unsigned int pow) {
         // take the logarithm, multiply, and then "exponentiate"
         // n.b. the exp table only considers powers of alpha, the primitive element
         // but here we have an arbitrary coeff
         byte log_U = this.logTable[Byte.toUnsignedInt(elem)];
         int resLog = Byte.toUnsignedInt(log_U) * pow;
-        int mod = resLog % 255;
+        int mod = resLog % 255; //TODO: unsigned modulus library function I believe
         if (mod < 0) {
             mod += 255;
         }
