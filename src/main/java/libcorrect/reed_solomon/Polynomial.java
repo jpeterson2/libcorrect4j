@@ -7,17 +7,18 @@
 package libcorrect.reed_solomon;
 
 import java.util.Arrays;
+import org.checkerframework.checker.signedness.qual.Unsigned;
 
 public class Polynomial implements Cloneable {
     private byte[] coeff;
-    private int order;
+    private @Unsigned int order;
 
     /**
      * Create uninitialized polyno,ial
      * @param order
      */
-    public Polynomial(int order) {
-        coeff = new byte[order + 1];
+    public Polynomial(@Unsigned int order) {
+        coeff = new byte[order + 1]; // makes this compile-time rather than runtime (NegativeArraySizeException)
         this.order = order;
     }
 
@@ -26,9 +27,9 @@ public class Polynomial implements Cloneable {
      * @param order
      * @param coeff
      */
-    public Polynomial(int order, byte[] coeff) {
+    public Polynomial(@Unsigned int order, byte[] coeff) {
         this.order = order;
-        this.coeff = Arrays.copyOf(coeff, this.order +1);
+        this.coeff = Arrays.copyOf(coeff, this.order +1); // bug - Arrays.copyOf is not unsigned-aware
     }
 
     /**
@@ -37,7 +38,7 @@ public class Polynomial implements Cloneable {
      * @param nRoots
      * @param roots
      */
-    public Polynomial(Field field, int nRoots, byte[] roots) {
+    public Polynomial(Field field, @Unsigned int nRoots, byte[] roots) {
         Polynomial l = new Polynomial(1);
 
         Polynomial[] r = new Polynomial[2];
@@ -79,11 +80,11 @@ public class Polynomial implements Cloneable {
         System.arraycopy(p.coeff, 0, coeff, 0, p.coeff.length);
     }
 
-    public int getOrder() {
+    public @Unsigned int getOrder() {
         return order;
     }
 
-    public void setOrder(int v) {
+    public void setOrder(@Unsigned int v) {
         order = v;
     }
 
@@ -100,7 +101,7 @@ public class Polynomial implements Cloneable {
     }
 
     public void flushCoeff() {
-        Arrays.fill(coeff, (byte)0);
+        Arrays.fill(coeff, (byte)0); // I don't think actually a bug but there's maybe a way to annotate this so it is understood
     }
 
 
@@ -294,7 +295,7 @@ public class Polynomial implements Cloneable {
      * @param order
      * @param valExp
      */
-    public static void buildExpLut(Field field, byte val, int order, byte[] valExp) {
+    public static void buildExpLut(Field field, byte val, @Unsigned int order, byte[] valExp) {
         byte valExponentiated = field.log(1);
         byte valLog = field.log(Byte.toUnsignedInt(val));
         for (int i = 0; Integer.compareUnsigned(i, order) <= 0; i++) {
@@ -314,7 +315,7 @@ public class Polynomial implements Cloneable {
      * @param roots
      * @param scratch
      */
-    public void initFromRoots(Field field, int nRoots,  byte[] roots,  Polynomial[] scratch) {
+    public void initFromRoots(Field field, @Unsigned int nRoots,  byte[] roots,  Polynomial[] scratch) {
         Polynomial l = new Polynomial(1);
 
         // we'll keep two temporary stores of rightside polynomial
