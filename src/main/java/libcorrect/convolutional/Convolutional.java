@@ -219,7 +219,7 @@ public class Convolutional {
         if (Integer.compareUnsigned(iter, 2_220) < 0) {
             return;
         }
-        System.out.println("iteration: " + iter);
+        System.out.println("iteration: " + Integer.toUnsignedString(iter));
         System.out.println("errors:");
         for (int i = 0; Integer.compareUnsigned(i, Integer.divideUnsigned(numstates_U, 2)) < 0; i++) {
             System.out.printf("%2d: %d\n", i, Short.toUnsignedInt(errorBuffer.getWriteError(i)));
@@ -268,7 +268,7 @@ public class Convolutional {
 
         // we limit history to go back as far as 5 * the order of our polynomial
         historyBuffer = new HistoryBuffer(minTraceback_U, tracebackLength_U, renormalizeInterval_U,
-                numstates_U / 2, 1 << (order_U - 1)); // TODO: unsigned division?
+                Integer.divideUnsigned(numstates_U, 2), 1 << (order_U - 1)); // TODO: unsigned division?
         errorBuffer = new ErrorBuffer(numstates_U);
     }
 

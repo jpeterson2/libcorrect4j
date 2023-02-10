@@ -74,7 +74,7 @@ public class HistoryBuffer {
         int leasterror_U = Integer.MAX_VALUE; // maybe a bug cuz it's not the max unsigned value
         // search for a state with the least error
         for(@Unsigned int state_U = 0; Integer.compareUnsigned(state_U, numStates_U) < 0; state_U += searchEvery_U) {
-            if(Short.toUnsignedInt(distances_U[state_U]) < leasterror_U) { //TODO: change to unsigned comparison?
+            if(Integer.compareUnsigned(Short.toUnsignedInt(distances_U[state_U]), leasterror_U) < 0) { //TODO: change to unsigned comparison?
                 leasterror_U = distances_U[state_U];
                 bestpath_U = state_U;
             }

@@ -157,8 +157,8 @@ public class Field {
         // but here we have an arbitrary coeff
         byte log_U = this.logTable[Byte.toUnsignedInt(elem)];
         int resLog = Byte.toUnsignedInt(log_U) * pow;
-        int mod = resLog % 255; //TODO: unsigned modulus library function I believe
-        if (mod < 0) {
+        int mod = Integer.remainderUnsigned(resLog, 255);
+        if (Integer.compareUnsigned(mod, 0) < 0) {
             mod += 255;
         }
         return expTable[mod];

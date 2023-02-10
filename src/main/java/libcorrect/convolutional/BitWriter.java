@@ -7,12 +7,13 @@
 package libcorrect.convolutional;
 
 import org.checkerframework.checker.signedness.qual.Unsigned;
+import org.checkerframework.checker.signedness.qual.SignedPositive;
 
 public class BitWriter {
     private @Unsigned byte currentByte_U;
     private @Unsigned int currentByteLen_U;
     private @Unsigned byte[] bytes_U;
-    private @Unsigned int byteIndex_U;
+    private @SignedPositive int byteIndex_U;
     private @Unsigned long len_U;
 
     public BitWriter(@Unsigned byte[] bytes_U, @Unsigned long len_U) {
@@ -179,7 +180,7 @@ public class BitWriter {
         }
     }
 
-    public @Unsigned int length() {
+    public @SignedPositive int length() {
         return byteIndex_U;
     }
 }
