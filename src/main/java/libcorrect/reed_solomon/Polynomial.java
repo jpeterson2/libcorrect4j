@@ -14,7 +14,7 @@ public class Polynomial implements Cloneable {
     private int order;
 
     /**
-     * Create uninitialized polyno,ial
+     * Create uninitialized polynomial
      * @param order
      */
     public Polynomial(int order) {

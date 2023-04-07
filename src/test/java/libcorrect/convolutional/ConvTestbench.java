@@ -62,7 +62,7 @@ public class ConvTestbench {
             ErrorSim.buildWhiteNoise(noise, enclen, ebN0, bpskBitEnergy);
             numErrors += testConvNoise(msg_U, blockLen_U, bpskVoltage);
         }
-		return numErrors;
+        return numErrors;
     }
 
     public int testConvNoise(byte[] msg, long nBytes, double bpskVoltage) {
