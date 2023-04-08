@@ -155,7 +155,7 @@ public class ReedSolomon {
      */
     public byte[] decode(byte[] encoded) throws IllegalArgumentException {
 
-        long encodedLength = encoded.length; // same
+        long encodedLength = encoded.length;
 
         if (encodedLength > blockLength) {
             throw new IllegalArgumentException("ReedSolomon.decode: encoded message length must be smaller than block length");
@@ -312,7 +312,7 @@ public class ReedSolomon {
         }
 
         // fill the pad_length with 0s
-        for (int i = 0; i < padLength; i++) { // rewrite comparison
+        for (int i = 0; i < padLength; i++) {
             receivedPolynomial.setCoeff((int) (i + encodedLength), (byte) 0);
         }
 
@@ -400,7 +400,7 @@ public class ReedSolomon {
      */
     private boolean findSyndromes(Polynomial msgpoly) {
         boolean allZero = true;
-        Arrays.fill(syndromes, 0, (int) minDistance, (byte) 0); // worth looking at
+        Arrays.fill(syndromes, 0, (int) minDistance, (byte) 0);
         for (int i = 0; i < minDistance; i++) {
             // profiling reveals that this function takes about 50% of the cpu time of
             // decoding. so, in order to speed it up a little, we precompute and save
@@ -491,7 +491,7 @@ public class ReedSolomon {
             //    but we'll update locator as before
             // we're basically flattening the two loops from the previous case because
             //    we no longer need to update last_locator
-            for (int j = lastErrorLocator.getOrder(); j >= 0; j--) { // also rewrite
+            for (int j = lastErrorLocator.getOrder(); j >= 0; j--) {
                 errorLocator.setCoeff(j + delayLength, (byte) field.fieldAdd(errorLocator.getCoeff(j + delayLength),
                         field.fieldDiv(field.fieldMul(lastErrorLocator.getCoeff(j), discrepancy), lastDiscrepancy)));
             }
@@ -515,7 +515,7 @@ public class ReedSolomon {
         // but, the finite field is awfully finite...
         // just brute force search across every field element
         int root = numSkip;
-        for (int i = 0; i < locatorLog.getOrder(); i++) { // rewrite again
+        for (int i = 0; i < locatorLog.getOrder(); i++) {
             roots[numSkip + i] = 0;
         }
         for (short i = 0; Short.toUnsignedInt(i) < 256; i++) {
