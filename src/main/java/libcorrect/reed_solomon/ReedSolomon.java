@@ -203,7 +203,7 @@ public class ReedSolomon {
         // XXX fix this vvvv
         errorLocator.setOrder(order);
 
-        for (int i = 0; Integer.compare(i, errorLocator.getOrder()) <= 0; i++) {
+        for (int i = 0; i <= errorLocator.getOrder(); i++) {
             // this is a little strange since the coeffs are logs, not elements
             // also, we'll be storing log(0) = 0 for any 0 coeffs in the error locator
             // that would seem bad but we'll just be using this in chien search, and we'll skip all 0 coeffs
@@ -221,7 +221,7 @@ public class ReedSolomon {
         findErrorLocations(errorLocator.getOrder());
         findErrorValues();
 
-        for (int i = 0; Integer.compare(i, errorLocator.getOrder()) < 0; i++) {
+        for (int i = 0; i < errorLocator.getOrder(); i++) {
             receivedPolynomial.setCoeff(Byte.toUnsignedInt(errorLocations[i]),
                     field.fieldSub(receivedPolynomial.getCoeff(Byte.toUnsignedInt(errorLocations[i])), errorVals[i]));
         }
@@ -435,7 +435,7 @@ public class ReedSolomon {
         byte lastDiscrepancy = 1;
         int delayLength = 1;
 
-        for (int i = errorLocator.getOrder(); i < (minDistance - numErasures); i++) {
+        for (int i = errorLocator.getOrder(); i < minDistance - numErasures; i++) {
             discrepancy = syndromes[i];
             for (int j = 1; j <= numerrors; j++) {
                 discrepancy = (byte) field.fieldAdd(discrepancy, field.fieldMul(errorLocator.getCoeff(j), syndromes[i - j]));
@@ -610,7 +610,7 @@ public class ReedSolomon {
             }
 
             byte loc_U = field.fieldDiv((byte) 1, errorRoots[i]);
-            for (int j = 0; Integer.compareUnsigned(j, 256) < 0; j++) {
+            for (int j = 0; j < 256; j++) {
                 if (field.fieldPow((byte) j, gRootGap) == loc_U) {
                     errorLocations[i] = field.log(j);
                     break;
