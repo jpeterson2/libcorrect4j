@@ -435,7 +435,7 @@ public class ReedSolomon {
         byte lastDiscrepancy = 1;
         int delayLength = 1;
 
-        for (int i = errorLocator.getOrder(); i < (minDistance - numErasures); i++) {
+        for (int i = errorLocator.getOrder(); i < minDistance - numErasures; i++) {
             discrepancy = syndromes[i];
             for (int j = 1; j <= numerrors; j++) {
                 discrepancy = (byte) field.fieldAdd(discrepancy, field.fieldMul(errorLocator.getCoeff(j), syndromes[i - j]));
@@ -733,14 +733,14 @@ public class ReedSolomon {
         System.out.print("roots: ");
         for (int i = 0; i < minDistance; i++) {
             System.out.print(Byte.toUnsignedInt(generatorRoots[i]));
-            if (i < (minDistance - 1)) {
+            if (i < minDistance - 1) {
                 System.out.print(", ");
             }
         }
         System.out.println('\n');
 
         System.out.print("generator: ");
-        for (int i = 0; i < (generator.getOrder() + 1); i++) {
+        for (int i = 0; i < generator.getOrder() + 1; i++) {
             System.out.print(Byte.toUnsignedInt(generator.getCoeff(i)) + "*x^" + i);
             if (i < generator.getOrder()) {
                 System.out.print(" + ");
@@ -760,7 +760,7 @@ public class ReedSolomon {
 
         System.out.print("remainder: ");
         boolean hasPrinted = false;
-        for (int i = 0; i < (encodedRemainder.getOrder() + 1); i++) {
+        for (int i = 0; i < encodedRemainder.getOrder() + 1; i++) {
             if (encodedRemainder.getCoeff(i) == 0) {
                 continue;
             }
@@ -775,7 +775,7 @@ public class ReedSolomon {
         System.out.print("syndromes: ");
         for (int i = 0; i < minDistance; i++) {
             System.out.print(Byte.toUnsignedInt(syndromes[i]));
-            if (i < (minDistance - 1)) {
+            if (i < minDistance - 1) {
                 System.out.print(", ");
             }
         }
@@ -785,7 +785,7 @@ public class ReedSolomon {
 
         System.out.print("error locator: ");
         hasPrinted = false;
-        for (int i = 0; i < (errorLocator.getOrder() + 1); i++) {
+        for (int i = 0; i < errorLocator.getOrder() + 1; i++) {
             if (errorLocator.getCoeff(i) == 0) {
                 continue;
             }
@@ -798,9 +798,9 @@ public class ReedSolomon {
         System.out.println("\n");
 
         System.out.print("error roots: ");
-        for (int i = 0; i < (errorLocator.getOrder()); i++) {
+        for (int i = 0; i < errorLocator.getOrder(); i++) {
             System.out.print(eval(field, errorLocator, errorRoots[i]) + "@" + Byte.toUnsignedInt(errorRoots[i]));
-            if (i < (errorLocator.getOrder() - 1)) {
+            if (i < errorLocator.getOrder() - 1) {
                 System.out.print(", ");
             }
         }
@@ -835,7 +835,7 @@ public class ReedSolomon {
         System.out.print("error locator: ");
         for(int i = 0; i < errorLocator.getOrder(); i++) {
             System.out.print(Byte.toUnsignedInt(errorVals[i]) + "@" + Byte.toUnsignedInt(errorLocations[i]));
-            if(i < (errorLocator.getOrder() - 1)) {
+            if(i < errorLocator.getOrder() - 1) {
                 System.out.print(", ");
             }
         }
