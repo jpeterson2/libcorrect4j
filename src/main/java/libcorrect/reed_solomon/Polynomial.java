@@ -195,7 +195,7 @@ public class Polynomial implements Cloneable {
 
         // assumes der.order = poly.order - 1
         Arrays.fill(der.coeff, (byte) 0);
-        for (int i = 0;i <= der.order; i++) {
+        for (int i = 0; i <= der.order; i++) {
             // we're filling in the ith power of der, so we look ahead one power in poly
             // f(x) = a(i + 1)*x^(i + 1) -> f'(x) = (i + 1)*a(i + 1)*x^i
             // where (i + 1)*a(i + 1) is the sum of a(i + 1) (i + 1) times, not the product
