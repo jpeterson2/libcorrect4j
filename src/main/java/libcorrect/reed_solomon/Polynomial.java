@@ -62,7 +62,7 @@ public class Polynomial implements Cloneable {
 
         // loop through, using previous run's result as the new right hand side
         // this allows us to multiply one group at a time
-        for (int i = 1; Integer.compare(i, nRoots) < 0; i++) {
+        for (int i = 1; i < nRoots; i++) {
             l.coeff[0] =  roots[i];
             int nextRCoeff = rCoeffRes;
             rCoeffRes = (rCoeffRes + 1) % 2;
@@ -119,12 +119,12 @@ public class Polynomial implements Cloneable {
 
     public static void mul(Field field, Polynomial l, Polynomial r, Polynomial res) {
          Arrays.fill(res.coeff, (byte) 0);
-        for (int i = 0; Integer.compare(i, l.order) <= 0; i++) {
-            if (Integer.compare(i, res.order) > 0) {
+        for (int i = 0; i <= l.order; i++) {
+            if (i > res.order) {
                 continue;
             }
-            int jLimit_U = Integer.compare(r.order, res.order - i) > 0 ? res.order - i : r.order;
-            for (int j = 0; Integer.compare(j, jLimit_U) <= 0; j++) {
+            int jLimit_U = r.order > res.order - i ? res.order - i : r.order;
+            for (int j = 0; j <= jLimit_U; j++) {
                 // e.g. alpha^5*x * alpha^37*x^2 --> alpha^42*x^3
                 res.coeff[i + j] = field.fieldAdd(res.coeff[i + j],
                         field.fieldMul(l.coeff[i], r.coeff[j]));
@@ -142,7 +142,7 @@ public class Polynomial implements Cloneable {
      */
     public static void mod(Field field, Polynomial dividend, Polynomial divisor, Polynomial mod) {
 
-        if (Integer.compare(mod.order, dividend.order) < 0) {
+        if (mod.order < dividend.order) {
             // mod.order must be >= dividend.order (scratch space needed)
             // this is an error -- catch it in debug?
             return;
@@ -155,12 +155,12 @@ public class Polynomial implements Cloneable {
         byte divisorLeading = field.log(Byte.toUnsignedInt(divisor.coeff[divisor.order]));
 
         // long division steps along one order at a time, starting at the highest order
-        for (int i = dividend.order; Integer.compare(i, 0) > 0; i--) {
+        for (int i = dividend.order; i > 0; i--) {
             // look at the leading coefficient of dividend and divisor
             // if leading coefficient of dividend / leading coefficient of divisor is q
             //   then the next row of subtraction will be q * divisor
             // if order of q < 0 then what we have is the remainder and we are done
-            if (Integer.compare(i, divisor.order) < 0) {
+            if (i < divisor.order) {
                 break;
             }
             if (Byte.toUnsignedInt(mod.coeff[i]) == 0) {
@@ -195,7 +195,7 @@ public class Polynomial implements Cloneable {
 
         // assumes der.order = poly.order - 1
         Arrays.fill(der.coeff, (byte) 0);
-        for (int i = 0; Integer.compare(i, der.order) <= 0; i++) {
+        for (int i = 0; i <= der.order; i++) {
             // we're filling in the ith power of der, so we look ahead one power in poly
             // f(x) = a(i + 1)*x^(i + 1) -> f'(x) = (i + 1)*a(i + 1)*x^i
             // where (i + 1)*a(i + 1) is the sum of a(i + 1) (i + 1) times, not the product
@@ -222,7 +222,7 @@ public class Polynomial implements Cloneable {
         byte valExponentiated = field.log(1);
         byte valLog = field.log(Byte.toUnsignedInt(val));
 
-        for (int i = 0; Integer.compare(i, poly.order) <= 0; i++) {
+        for (int i = 0; i <= poly.order; i++) {
             if (Byte.toUnsignedInt(poly.coeff[i]) != 0) {
                 // multiply-accumulate by the next coeff times the next power of val
                 res = field.fieldAdd(res, field.fieldMulLogElement(field.log(Byte.toUnsignedInt(poly.coeff[i])),
@@ -278,7 +278,7 @@ public class Polynomial implements Cloneable {
 
         byte res = 0;
 
-        for (int i = 0; Integer.compare(i, order) <= 0; i++) {
+        for (int i = 0; i <= order; i++) {
             // using 0 as a sentinel value in log -- log(0) is really -inf
             if (Byte.toUnsignedInt(coeff[i]) != 0) {
                 // multiply-accumulate by the next coeff times the next power of val
@@ -298,7 +298,7 @@ public class Polynomial implements Cloneable {
     public static void buildExpLut(Field field, byte val, int order, byte[] valExp) {
         byte valExponentiated = field.log(1);
         byte valLog = field.log(Byte.toUnsignedInt(val));
-        for (int i = 0; Integer.compare(i, order) <= 0; i++) {
+        for (int i = 0; i <= order; i++) {
             if (Byte.toUnsignedInt(val) == 0) {
                 valExp[i] = (byte) 0;
             } else {
@@ -337,7 +337,7 @@ public class Polynomial implements Cloneable {
 
         // loop through, using previous run's result as the new right hand side
         // this allows us to multiply one group at a time
-        for (int i = 1; Integer.compare(i, nRoots) < 0; i++) {
+        for (int i = 1; i < nRoots; i++) {
             l.coeff[0] = roots[i];
             int nextRCoeff = rCoeffRes;
             rCoeffRes = (rCoeffRes + 1) % 2;
