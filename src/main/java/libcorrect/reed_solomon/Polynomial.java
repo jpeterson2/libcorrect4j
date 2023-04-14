@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 
 public class Polynomial implements Cloneable {
-    private byte[] coeff;
+    private @Unsigned byte[] coeff;
     private int order;
 
     /**
@@ -18,7 +18,7 @@ public class Polynomial implements Cloneable {
      * @param order
      */
     public Polynomial(int order) {
-        coeff = new byte[order + 1]; // makes this compile-time rather than runtime (NegativeArraySizeException)
+        coeff = new @Unsigned byte[order + 1]; // makes this compile-time rather than runtime (NegativeArraySizeException)
         this.order = order;
     }
 
@@ -27,7 +27,7 @@ public class Polynomial implements Cloneable {
      * @param order
      * @param coeff
      */
-    public Polynomial(int order, byte[] coeff) {
+    public Polynomial(int order, @Unsigned byte[] coeff) {
         this.order = order;
         this.coeff = Arrays.copyOf(coeff, this.order +1);
     }
@@ -38,7 +38,7 @@ public class Polynomial implements Cloneable {
      * @param nRoots
      * @param roots
      */
-    public Polynomial(Field field, int nRoots, byte[] roots) {
+    public Polynomial(Field field, int nRoots, @Unsigned byte[] roots) {
         Polynomial l = new Polynomial(1);
 
         Polynomial[] r = new Polynomial[2];
@@ -54,11 +54,11 @@ public class Polynomial implements Cloneable {
 
         // initialize the result with x + roots[0]
         r[rCoeffRes].coeff[0] = roots[0];
-        r[rCoeffRes].coeff[1] = (byte) 1;
+        r[rCoeffRes].coeff[1] = (@Unsigned byte) 1;
 
         // initialize lcoeff[1] with x
         // we'll fill in the 0th order term in each loop iter
-        l.coeff[1] = (byte) 1;
+        l.coeff[1] = (@Unsigned byte) 1;
 
         // loop through, using previous run's result as the new right hand side
         // this allows us to multiply one group at a time
@@ -88,20 +88,20 @@ public class Polynomial implements Cloneable {
         order = v;
     }
 
-    public byte[] getCoeff() {
+    public @Unsigned byte[] getCoeff() {
         return coeff;
     }
 
-    public byte getCoeff(int i) {
+    public @Unsigned byte getCoeff(int i) {
         return coeff[i];
     }
 
-    public void setCoeff(int i, byte v) {
+    public void setCoeff(int i, @Unsigned byte v) {
         coeff[i] = v;
     }
 
     public void flushCoeff() {
-        Arrays.fill(coeff, (byte)0); // I don't think actually a bug but there's maybe a way to annotate this so it is understood
+        Arrays.fill(coeff, (@Unsigned byte)0); // I don't think actually a bug but there's maybe a way to annotate this so it is understood
     }
 
 
@@ -118,7 +118,7 @@ public class Polynomial implements Cloneable {
      */
 
     public static void mul(Field field, Polynomial l, Polynomial r, Polynomial res) {
-         Arrays.fill(res.coeff, (byte) 0);
+         Arrays.fill(res.coeff, (@Unsigned byte) 0);
         for (int i = 0; i <= l.order; i++) {
             if (i > res.order) {
                 continue;
@@ -194,7 +194,7 @@ public class Polynomial implements Cloneable {
     public static void formalDerivative(Field field, Polynomial poly, Polynomial der) {
 
         // assumes der.order = poly.order - 1
-        Arrays.fill(der.coeff, (byte) 0);
+        Arrays.fill(der.coeff, (@Unsigned byte) 0);
         for (int i = 0; i <= der.order; i++) {
             // we're filling in the ith power of der, so we look ahead one power in poly
             // f(x) = a(i + 1)*x^(i + 1) -> f'(x) = (i + 1)*a(i + 1)*x^i
@@ -210,7 +210,7 @@ public class Polynomial implements Cloneable {
      * @param val
      * @return
      */
-    public static byte eval(Field field, Polynomial poly, byte val) {
+    public static @Unsigned byte eval(Field field, Polynomial poly, @Unsigned byte val) {
 
         if (Byte.toUnsignedInt(val) == 0) {
             return poly.coeff[0];
@@ -243,14 +243,14 @@ public class Polynomial implements Cloneable {
      * @param valExp
      * @return
      */
-    public byte evalLut(Field field, byte[] valExp) {
+    public @Unsigned byte evalLut(Field field, @Unsigned byte[] valExp) {
         if (Byte.toUnsignedInt(valExp[0]) == 0) {
             return coeff[0];
         }
 
         byte res = 0;
 
-        for (int i = 0; Integer.compare(i, order) <= 0; i++) {
+        for (int i = 0; i <= order; i++) {
             if (Byte.toUnsignedInt(coeff[i]) != 0) {
                 // multiply-accumulate by the next coeff times the next power of val
                 res = field.fieldAdd(res, field.fieldMulLogElement(field.log(Byte.toUnsignedInt(coeff[i])), valExp[i]));
@@ -267,7 +267,7 @@ public class Polynomial implements Cloneable {
      * @param valExp
      * @return
      */
-    public byte evalLogLut(Field field, byte[] valExp) {
+    public @Unsigned byte evalLogLut(Field field, @Unsigned byte[] valExp) {
         if (Byte.toUnsignedInt(valExp[0]) == 0) {
             if (Byte.toUnsignedInt(coeff[0]) == 0) {
                 // special case for the non-existant log case
@@ -295,7 +295,7 @@ public class Polynomial implements Cloneable {
      * @param order
      * @param valExp
      */
-    public static void buildExpLut(Field field, byte val, int order, byte[] valExp) {
+    public static void buildExpLut(Field field, @Unsigned byte val, int order, @Unsigned byte[] valExp) {
         byte valExponentiated = field.log(1);
         byte valLog = field.log(Byte.toUnsignedInt(val));
         for (int i = 0; i <= order; i++) {
@@ -315,7 +315,7 @@ public class Polynomial implements Cloneable {
      * @param roots
      * @param scratch
      */
-    public void initFromRoots(Field field, int nRoots,  byte[] roots,  Polynomial[] scratch) {
+    public void initFromRoots(Field field, int nRoots,  @Unsigned byte[] roots,  Polynomial[] scratch) {
         Polynomial l = new Polynomial(1);
 
         // we'll keep two temporary stores of rightside polynomial
@@ -327,13 +327,13 @@ public class Polynomial implements Cloneable {
         int rCoeffRes = 0;
 
         // initialize the result with x + roots[0]
-        r[rCoeffRes].coeff[1] = (byte) 1;
+        r[rCoeffRes].coeff[1] = (@Unsigned byte) 1;
         r[rCoeffRes].coeff[0] = roots[0];
         r[rCoeffRes].order = 1;
 
         // initialize lcoeff[1] with x
         // we'll fill in the 0th order term in each loop iter
-        l.coeff[1] = (byte) 1;
+        l.coeff[1] = (@Unsigned byte) 1;
 
         // loop through, using previous run's result as the new right hand side
         // this allows us to multiply one group at a time

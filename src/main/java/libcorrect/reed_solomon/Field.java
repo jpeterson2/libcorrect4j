@@ -9,25 +9,25 @@ package libcorrect.reed_solomon;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 
 public class Field {
-    private byte[] expTable;
-    private byte[] logTable;
+    private @Unsigned byte[] expTable;
+    private @Unsigned byte[] logTable;
 
-    public byte exp(@Unsigned int i) {
+    public @Unsigned byte exp(int i) {
         return expTable[i];
     }
 
-    public byte log(@Unsigned int i) {
+    public @Unsigned byte log(int i) {
         return logTable[i];
     }
 
-    public Field(short primitivePoly) {
+    public Field(@Unsigned short primitivePoly) {
         // in GF(2^8)
         // log and exp
         // bits are in GF(2), compute alpha^val in GF(2^8)
         // exp should be of size 512 so that it can hold a "wraparound" which prevents some modulo ops
         // log should be of size 256. no wraparound here, the indices into this table are field elements
-        expTable = new byte[512];
-        logTable = new byte[256];
+        expTable = new @Unsigned byte[512];
+        logTable = new @Unsigned byte[256];
 
         // assume alpha is a primitive element, p(x) (primitive_poly) irreducible in GF(2^8)
         // addition is xor
@@ -53,22 +53,22 @@ public class Field {
         }
     }
 
-    public byte fieldMulLogElement(byte l, byte r) {
+    public @Unsigned byte fieldMulLogElement(@Unsigned byte l, @Unsigned byte r) {
         // like field_mul_log, but returns a field_element_t
         // because we are doing lookup here, we can safely skip the wrapover check
         short res = (short) (Short.toUnsignedInt((short) Byte.toUnsignedInt(l)) + Short.toUnsignedInt((short) Byte.toUnsignedInt(r)));
         return expTable[Short.toUnsignedInt(res)];
     }
 
-    public byte fieldAdd(byte l, byte r) {
-        return (byte) (Byte.toUnsignedInt(l) ^ Byte.toUnsignedInt(r));
+    public @Unsigned byte fieldAdd(@Unsigned byte l, @Unsigned byte r) {
+        return (@Unsigned byte) (Byte.toUnsignedInt(l) ^ Byte.toUnsignedInt(r));
     }
 
-    public byte fieldSub(byte l, byte r) {
-        return (byte) (Byte.toUnsignedInt(l) ^ Byte.toUnsignedInt(r));
+    public @Unsigned byte fieldSub(@Unsigned byte l, @Unsigned byte r) {
+        return (@Unsigned byte) (Byte.toUnsignedInt(l) ^ Byte.toUnsignedInt(r));
     }
 
-    public byte fieldSum(byte elem_U, @Unsigned int n_U) {
+    public @Unsigned byte fieldSum(@Unsigned byte elem_U, int n_U) {
         // we'll do a closed-form expression of the sum, although we could also
         //   choose to call field_add n times
 
@@ -82,10 +82,10 @@ public class Field {
         // an odd number of XORs puts you back at your value
 
         // so, just throw away all the even n
-        return (byte) (Integer.remainderUnsigned(n_U, 2) != 0 ? Byte.toUnsignedInt(elem_U) : 0);
+        return (byte) (n_U % 2 != 0 ? Byte.toUnsignedInt(elem_U) : 0);
     }
 
-    public byte fieldMul(byte l, byte r) {
+    public @Unsigned byte fieldMul(@Unsigned byte l, @Unsigned byte r) {
         if(Byte.toUnsignedInt(l) == 0 || Byte.toUnsignedInt(r) == 0) {
             return 0;
         }
@@ -104,7 +104,7 @@ public class Field {
         return expTable[Short.toUnsignedInt(res)];
     }
 
-    public byte fieldDiv(byte l, byte r) {
+    public @Unsigned byte fieldDiv(@Unsigned byte l, @Unsigned byte r) {
         if(Byte.toUnsignedInt(l) == 0) {
             return 0;
         }
@@ -125,7 +125,7 @@ public class Field {
         return expTable[Short.toUnsignedInt(res)];
     }
 
-    public byte fieldMulLog(byte l, byte r) {
+    public @Unsigned byte fieldMulLog(@Unsigned byte l, @Unsigned byte r) {
         // this function performs the equivalent of field_mul on two logarithms
         // we save a little time by skipping the lookup step at the beginning
         short res = (short) (Short.toUnsignedInt((short) Byte.toUnsignedInt(l)) + Short.toUnsignedInt((short) Byte.toUnsignedInt(r)));
@@ -135,12 +135,12 @@ public class Field {
         // ensuring this makes it so that multiple muls will not reach past the end of the
         // exp table whenever we finally convert back to an element
         if (Short.toUnsignedInt(res) > 255) {
-            return (byte) (Short.toUnsignedInt(res) - 255);
+            return (@Unsigned byte) (Short.toUnsignedInt(res) - 255);
         }
-        return (byte) res;
+        return (@Unsigned byte) res;
     }
 
-    public byte fieldDivLog(byte l, byte r) {
+    public @Unsigned byte fieldDivLog(@Unsigned byte l, @Unsigned byte r) {
         // like field_mul_log, this performs field_div without going through a field_element_t
         short res = (short) (Short.toUnsignedInt((short) 255) +
                                Short.toUnsignedInt((short) Byte.toUnsignedInt(l)) -
@@ -151,14 +151,14 @@ public class Field {
         return (byte) res;
     }
 
-    public byte fieldPow(byte elem, @Unsigned int pow) {
+    public @Unsigned byte fieldPow(@Unsigned byte elem, int pow) {
         // take the logarithm, multiply, and then "exponentiate"
         // n.b. the exp table only considers powers of alpha, the primitive element
         // but here we have an arbitrary coeff
         byte log_U = this.logTable[Byte.toUnsignedInt(elem)];
         int resLog = Byte.toUnsignedInt(log_U) * pow;
-        int mod = Integer.remainderUnsigned(resLog, 255);
-        if (Integer.compareUnsigned(mod, 0) < 0) {
+        int mod = resLog % 255;
+        if (mod < 0) {
             mod += 255;
         }
         return expTable[mod];

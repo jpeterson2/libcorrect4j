@@ -36,25 +36,25 @@ public class ReedSolomon {
     private final long blockLength; // final assigned as constant - should it be glb or w/e? or is there something about subclassing that means we don't actually know enough about it's value
     private final long maxMessageLength;
     private final long minDistance;
-    private final byte fConsecutiveRoot;
+    private final @Unsigned byte fConsecutiveRoot;
     private final @Unsigned byte gRootGap;
     private final Field field;
     private final Polynomial generator;
-    private final byte[] generatorRoots;
-    private byte[][] generatorRootExp;
+    private final @Unsigned byte[] generatorRoots;
+    private @Unsigned byte[][] generatorRootExp;
     private final Polynomial encodedPolynomial;
     private final Polynomial encodedRemainder;
-    private byte[] syndromes;
-    private byte[] modifiedSyndromes;
+    private @Unsigned byte[] syndromes;
+    private @Unsigned byte[] modifiedSyndromes;
     private Polynomial receivedPolynomial;
     private Polynomial errorLocator;
     private Polynomial errorLocatorLog;
     private Polynomial erasureLocator;
-    private byte[] errorRoots;
-    private byte[] errorVals;
-    private byte[] errorLocations;
+    private @Unsigned byte[] errorRoots;
+    private @Unsigned byte[] errorVals;
+    private @Unsigned byte[] errorLocations;
 
-    private byte[][] elementExp;
+    private @Unsigned byte[][] elementExp;
     //  scratch (do no allocations at steady state)
     //  used during find_error_locator
     private Polynomial lastErrorLocator;
@@ -78,7 +78,7 @@ public class ReedSolomon {
      *                                      increases the computational time for decoding.
      */
 
-    public ReedSolomon(short primitivePolynomial, byte firstConsecutiveRoot, @Unsigned byte generatorRootGap, long numRoots) {
+    public ReedSolomon(@Unsigned short primitivePolynomial, @Unsigned byte firstConsecutiveRoot, @Unsigned byte generatorRootGap, long numRoots) {
         field = new Field(primitivePolynomial);
         blockLength = 255;
         minDistance = numRoots;
@@ -105,10 +105,10 @@ public class ReedSolomon {
      * @return       encoded message
      * @throws IllegalArgumentException  if message length is larger then (255 - min. distance)
      */
-    public byte[] encode(byte[] msg) throws IllegalArgumentException {
+    public @Unsigned byte[] encode(@Unsigned byte[] msg) throws IllegalArgumentException {
 
-        long msgLength = msg.length; // should be safe because length of array is nonnegative, we'll see if checker knows that :)
-        byte[] encoded = new byte[(int) (msgLength+minDistance)];
+        long msgLength = msg.length; // should just be signed int - legnth of array is bounded in java .-.
+        @Unsigned byte[] encoded = new @Unsigned byte[(int) (msgLength+minDistance)];
 
         if (msgLength > maxMessageLength) {
             throw new IllegalArgumentException("ReedSolomon.encode: message length must be smaller than block length - min. distance");
@@ -153,7 +153,7 @@ public class ReedSolomon {
      * @return              decoded message or null if the block is too corrupted and cannot be recovered
      * @throws IllegalArgumentException  if encoded message length is larger than block length
      */
-    public byte[] decode(byte[] encoded) throws IllegalArgumentException {
+    public @Unsigned byte[] decode(@Unsigned byte[] encoded) throws IllegalArgumentException {
 
         long encodedLength = encoded.length;
 
@@ -163,7 +163,7 @@ public class ReedSolomon {
 
         // the message is the non-remainder part
         long msgLength = encodedLength - minDistance;
-        byte[] msg = new byte[(int) msgLength];
+        @Unsigned byte[] msg = new @Unsigned byte[(int) msgLength];
         // if they handed us a nonfull block, we'll write in 0s
         long padLength = blockLength - encodedLength;
 
@@ -275,7 +275,7 @@ public class ReedSolomon {
      * @throws IllegalArgumentException if encoded message length is larger than block length or number of erasures is
      *                                  larger than min. distance
      */
-    public byte[] decodeWithErasures(byte[] encoded, byte[] erasureLocations) throws IllegalArgumentException {
+    public @Unsigned byte[] decodeWithErasures(@Unsigned byte[] encoded, @Unsigned byte[] erasureLocations) throws IllegalArgumentException {
         long erasureLength = erasureLocations.length;
         if (erasureLength == 0) {
             return decode(encoded);
@@ -294,7 +294,7 @@ public class ReedSolomon {
         // if they handed us a nonfull block, we'll write in 0s
         long padLength = blockLength - encodedLength;
 
-        byte[] msg = new byte[(int) msgLength];
+        @Unsigned byte[] msg = new byte[(int) msgLength];
 
         if (!hasInitDecode) {
             createDecoder();
@@ -338,7 +338,7 @@ public class ReedSolomon {
 
         findModifiedSyndromes(erasureLocator);
 
-        byte[] syndromeCopy_U = Arrays.copyOf(syndromes, (int) minDistance);
+        @Unsigned byte[] syndromeCopy_U = Arrays.copyOf(syndromes, (int) minDistance);
 
         for (int i = (int) erasureLength; i < minDistance; i++) {
             syndromes[(int) (Integer.toUnsignedLong(i) - erasureLength)] = modifiedSyndromes[i];
@@ -510,7 +510,7 @@ public class ReedSolomon {
      * @param elementExp
      * @return  True if errors are recoverable, false otherwise
      */
-    public boolean factorizeErrorLocator(int numSkip, Polynomial locatorLog, byte[] roots, byte[][] elementExp) {
+    public boolean factorizeErrorLocator(int numSkip, Polynomial locatorLog, @Unsigned byte[] roots, @Unsigned byte[][] elementExp) {
         // normally it'd be tricky to find all the roots
         // but, the finite field is awfully finite...
         // just brute force search across every field element
@@ -611,7 +611,7 @@ public class ReedSolomon {
 
             byte loc_U = field.fieldDiv((byte) 1, errorRoots[i]);
             for (int j = 0; j < 256; j++) {
-                if (field.fieldPow((byte) j, gRootGap) == loc_U) {
+                if (field.fieldPow((@Unsigned byte) j, gRootGap) == loc_U) { // BUG?? or at least a functional difference between the two
                     errorLocations[i] = field.log(j);
                     break;
                 }
@@ -627,7 +627,7 @@ public class ReedSolomon {
      */
     private void findErrorRootsFromLocations(@Unsigned byte generatorRootGap, int numErrors) {
         for (int i = 0; i < numErrors; i++) {
-            byte loc_U = field.fieldPow(field.exp(Byte.toUnsignedInt(errorLocations[i])), generatorRootGap);
+            byte loc_U = field.fieldPow(field.exp(Byte.toUnsignedInt(errorLocations[i])), generatorRootGap); // Same as above
             // field_element_t loc = field.exp[error_locations[i]];
             errorRoots[i] = field.fieldDiv((byte) 1, loc_U);
         }
@@ -683,7 +683,7 @@ public class ReedSolomon {
         // we would have to do this work in order to calculate the syndromes
         // if we save it, we can prevent the need to recalculate it on subsequent calls
         // total memory usage is min_distance * block_length bytes e.g. 32 * 255 ~= 8k
-        generatorRootExp = new byte[(int) minDistance][];
+        generatorRootExp = new @Unsigned byte[(int) minDistance][];
         for (int i = 0; i < minDistance; i++) {
             generatorRootExp[i] = new byte[(int) blockLength];
             buildExpLut(field, generatorRoots[i], (int) (blockLength - 1), generatorRootExp[i]);
@@ -693,7 +693,7 @@ public class ReedSolomon {
         // we would have to do this for chien search anyway, and its size is only 256 * min_distance bytes
         // for min_distance = 32 this is 8k of memory, a pittance for the speedup we receive in exchange
         // we also get to reuse this work during error value calculation
-        elementExp = new byte[256][];
+        elementExp = new @Unsigned byte[256][];
         for (int i = 0; i < 256; i++) {
             elementExp[i] = new byte[(int) minDistance];
             buildExpLut(field, (byte) i, (int) (minDistance - 1), elementExp[i]);
@@ -712,10 +712,10 @@ public class ReedSolomon {
      * @param roots
      * @return
      */
-    private Polynomial reedSolomonBuildGenerator(int nroots,  byte[] roots) {
+    private Polynomial reedSolomonBuildGenerator(int nroots, @Unsigned byte[] roots) {
         for (int i = 0; i < nroots; i++) {
             roots[i] = field.exp(Integer.remainderUnsigned(
-                    gRootGap * (i + Byte.toUnsignedInt(fConsecutiveRoot)), 255));
+                    gRootGap * (i + Byte.toUnsignedInt(fConsecutiveRoot)), 255)); // < 255 and > 0, SignednessPositive in practice: not a bug
         }
         return new Polynomial(field, nroots, roots);
 
@@ -725,7 +725,7 @@ public class ReedSolomon {
      * Debug print
      */
     public void debugPrint() {
-        for (int i = 0; Integer.compareUnsigned(i, 256) < 0; i++) {
+        for (int i = 0; i < 256; i++) {
             System.out.printf("%3d  %3d    %3d  %3d\n", i, Byte.toUnsignedInt(field.exp(i)), i, Byte.toUnsignedInt(field.log(i)));
         }
         System.out.println();
@@ -799,7 +799,7 @@ public class ReedSolomon {
 
         System.out.print("error roots: ");
         for (int i = 0; i < errorLocator.getOrder(); i++) {
-            System.out.print(eval(field, errorLocator, errorRoots[i]) + "@" + Byte.toUnsignedInt(errorRoots[i]));
+            System.out.print(Byte.toUnsignedInt(eval(field, errorLocator, errorRoots[i])) + "@" + Byte.toUnsignedInt(errorRoots[i]));
             if (i < errorLocator.getOrder() - 1) {
                 System.out.print(", ");
             }
