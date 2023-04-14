@@ -23,7 +23,7 @@ public class BitReader {
         return rT_U;
     }
 
-    @Unsigned byte currentByte_U;;
+    @Unsigned byte currentByte_U;
     @Unsigned long byteIndex_U;
     @Unsigned long len_U;
     @Unsigned long currentByteLen_U;
