@@ -171,7 +171,7 @@ public class Polynomial implements Cloneable {
 
             // now that we've chosen q, multiply the divisor by q and subtract from
             //   our remainder. subtracting in GF(2^8) is XOR, just like addition
-            for (int j = 0; Integer.compare(j, divisor.order) <= 0; j++) {
+            for (int j = 0; j <= divisor.order; j++) {
                 if (Byte.toUnsignedInt(divisor.coeff[j]) == 0) {
                     continue;
                 }
