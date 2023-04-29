@@ -125,14 +125,14 @@ public class ReedSolomon {
             // message goes from high order to low order but libcorrect polynomials go low to high
             // so we reverse on the way in and on the way out
             // we'd have to do a copy anyway so this reversal should be free
-            encodedPolynomial.setCoeff((int) (encodedPolynomial.getOrder() - (i + padLength)), msg[i]); // I think Integer.toUnsignedLong should be able to consume @Unsigned
+            encodedPolynomial.setCoeff((int) (encodedPolynomial.getOrder() - (i + padLength)), msg[i]);
         }
 
         Polynomial.mod(field, encodedPolynomial, generator, encodedRemainder);
 
         // now return byte order to highest order to lowest order
         for (int i = 0; i < msgLength; i++) {
-            encoded[i] = encodedPolynomial.getCoeff((int) (encodedPolynomial.getOrder() - (i + padLength))); // toUnsignedLong should be annotated such that arguments can be whatever signedness i think
+            encoded[i] = encodedPolynomial.getCoeff((int) (encodedPolynomial.getOrder() - (i + padLength)));
         }
 
         for (int i = 0; i < minDistance; i++) {
