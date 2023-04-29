@@ -611,7 +611,7 @@ public class ReedSolomon {
 
             byte loc_U = field.fieldDiv((byte) 1, errorRoots[i]);
             for (int j = 0; j < 256; j++) {
-                if (field.fieldPow((@Unsigned byte) j, gRootGap) == loc_U) { // BUG?? or at least a functional difference between the two
+                if (field.fieldPow((@Unsigned byte) j, Byte.toUnsignedInt(gRootGap)) == loc_U) {
                     errorLocations[i] = field.log(j);
                     break;
                 }
@@ -627,7 +627,7 @@ public class ReedSolomon {
      */
     private void findErrorRootsFromLocations(@Unsigned byte generatorRootGap, int numErrors) {
         for (int i = 0; i < numErrors; i++) {
-            byte loc_U = field.fieldPow(field.exp(Byte.toUnsignedInt(errorLocations[i])), generatorRootGap); // Same as above
+            byte loc_U = field.fieldPow(field.exp(Byte.toUnsignedInt(errorLocations[i])), Byte.toUnsignedInt(generatorRootGap));
             // field_element_t loc = field.exp[error_locations[i]];
             errorRoots[i] = field.fieldDiv((byte) 1, loc_U);
         }
