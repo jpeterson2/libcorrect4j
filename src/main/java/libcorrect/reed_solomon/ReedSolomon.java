@@ -468,7 +468,7 @@ public class ReedSolomon {
                 // locator = locator - last_locator
                 // we will also update last_locator to be locator before this loop takes place
                 byte temp;
-                for (int j = 0; j <= (lastErrorLocator.getOrder() + delayLength); j++) {
+                for (int j = 0; j <= lastErrorLocator.getOrder() + delayLength; j++) {
                     temp = errorLocator.getCoeff(j);
                     errorLocator.setCoeff(j, field.fieldAdd(errorLocator.getCoeff(j), lastErrorLocator.getCoeff(j)));
                     lastErrorLocator.setCoeff(j, temp);
