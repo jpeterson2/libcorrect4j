@@ -9,6 +9,7 @@ package libcorrect.reed_solomon;
 
 import java.util.Arrays;
 import org.checkerframework.checker.signedness.qual.Unsigned;
+import org.checkerframework.checker.signedness.qual.Signed;
 
 import static libcorrect.reed_solomon.Polynomial.*;
 
@@ -714,7 +715,7 @@ public class ReedSolomon {
      */
     private Polynomial reedSolomonBuildGenerator(int nroots, @Unsigned byte[] roots) {
         for (int i = 0; i < nroots; i++) {
-            roots[i] = field.exp(Integer.remainderUnsigned(
+            roots[i] = field.exp((@Signed int) Integer.remainderUnsigned(
                     gRootGap * (i + Byte.toUnsignedInt(fConsecutiveRoot)), 255)); // < 255 and > 0, SignednessPositive in practice: not a bug
         }
         return new Polynomial(field, nroots, roots);
