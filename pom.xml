@@ -57,7 +57,7 @@
                 <annotationProcessor>org.checkerframework.checker.signedness.SignednessChecker</annotationProcessor>
               </annotationProcessors>
               <compilerArgs>
-                <!-- <arg>-Awarns</arg> --> <!-- -Awarns turns type-checking errors into warnings. -->
+                <arg>-AwarnUnneededSuppressions</arg>
               </compilerArgs>
             </configuration>
           </plugin>
